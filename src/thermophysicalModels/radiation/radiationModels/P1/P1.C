@@ -216,6 +216,22 @@ void Foam::radiation::P1::calculate()
 
     const dimensionedScalar a0 ("a0", a_.dimensions(), rootVSmall);
 
+    tmp<volScalarField> Gp
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "Gp",
+                mesh_.time().timeName(),
+                mesh_,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            G_
+        )
+    );
+    
     tmp<volScalarField> qsr
     (
         new volScalarField
@@ -254,7 +270,7 @@ void Foam::radiation::P1::calculate()
         );
 
         // Solve G transport equation
-        G_.primitiveFieldRef()=Gp.ref().primitiveFieldRef();
+        G_.primitiveFieldRef() = Gp.ref().primitiveFieldRef();
 
         solve
         (
