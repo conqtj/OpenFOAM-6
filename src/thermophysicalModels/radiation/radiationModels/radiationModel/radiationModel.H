@@ -94,7 +94,7 @@ protected:
         label solverFreq_;
         
         // Number of bands in spectrum
-        label nBands_;
+        label noOfBands_;
 
         //- Flag to enable radiation model to be evaluated on first iteration
         bool firstIter_;
