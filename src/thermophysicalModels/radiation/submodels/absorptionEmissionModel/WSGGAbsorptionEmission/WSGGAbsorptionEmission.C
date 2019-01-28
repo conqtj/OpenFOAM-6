@@ -114,16 +114,7 @@ Foam::radiation::WSGGAbsorptionEmission::aCont(const label bandi) const
 
         if(!bandi)kg[0]=1e-12;
         else kg[bandi]=KG[bandi]*(XCO2+XH2O);
-/*        //kg[1]=KG[0]*(XCO2+XH2O);
-       // kg[2]=KG[1]*(XCO2+XH2O);
-        //kg[3]=KG[2]*(XCO2+XH2O);
 
-        scalar kgw = 0;
-        forAll(kg, point)
-        {
-            kgw += kg[point]*w[point];
-        }
-*/
         a[celli] = kg[bandi];
     }
 
@@ -170,11 +161,7 @@ Foam::radiation::WSGGAbsorptionEmission::eCont(const label bandi) const
 
         kg[0]=1e-12;
 	kg[bandi]=KG[bandi]*(XCO2+XH2O);
-/*
-        kg[1]=KG[0]*(XCO2+XH2O);
-        kg[2]=KG[1]*(XCO2+XH2O);
-        kg[3]=KG[2]*(XCO2+XH2O);
-*/        
+      
         for(int i=0;i<3;i++)
         {
             aFg[i+1]=0.0;
@@ -184,18 +171,7 @@ Foam::radiation::WSGGAbsorptionEmission::eCont(const label bandi) const
         
         //clear gas
         aFg[0]=1.0-aFg[1]-aFg[2]-aFg[3];
-/*
-        scalar kgw = 0;
-        forAll(kg, point)
-        {
-            kgw += kg[point]*w[point];
-        }
-        scalar aFgw = 0;
-        forAll(aFg, point)
-        {
-            aFgw += aFg[point]*w[point];
-        }
-*/
+
         e[celli] = kg[bandi]*aFg[bandi];
     }
 
