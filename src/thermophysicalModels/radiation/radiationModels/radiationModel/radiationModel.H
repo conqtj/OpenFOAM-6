@@ -92,6 +92,9 @@ protected:
         //- Radiation solver frequency - number flow solver iterations per
         //  radiation solver iteration
         label solverFreq_;
+        
+        // Number of bands in spectrum
+        label nBands_;
 
         //- Flag to enable radiation model to be evaluated on first iteration
         bool firstIter_;
