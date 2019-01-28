@@ -212,48 +212,77 @@ bool Foam::radiation::P1::read()
 
 void Foam::radiation::P1::calculate()
 {
-    a_ = absorptionEmission_->a();
-    e_ = absorptionEmission_->e();
-    E_ = absorptionEmission_->E();
     const volScalarField sigmaEff(scatter_->sigmaEff());
 
     const dimensionedScalar a0 ("a0", a_.dimensions(), rootVSmall);
 
-    // Construct diffusion
-    const volScalarField gamma
+    tmp<volScalarField> qsr
     (
-        IOobject
+        new volScalarField
         (
-            "gammaRad",
-            G_.mesh().time().timeName(),
-            G_.mesh(),
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        1.0/(3.0*a_ + sigmaEff + a0)
+            IOobject
+            (
+                "qsr",
+                mesh_.time().timeName(),
+                mesh_,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+        mesh_,
+        dimensionedScalar("qsr", dimMass/pow3(dimTime), 0.0)
+        )
     );
-
-    // Solve G transport equation
-    solve
-    (
-        fvm::laplacian(gamma, G_)
-      - fvm::Sp(a_, G_)
-     ==
-      - 4.0*(e_*physicoChemical::sigma*pow4(T_) ) - E_
-    );
-
-    volScalarField::Boundary& qrBf = qr_.boundaryFieldRef();
-
-    // Calculate radiative heat flux on boundaries.
-    forAll(mesh_.boundaryMesh(), patchi)
+    
+    for(int i=0; i<nBands; i++)
     {
-        if (!G_.boundaryField()[patchi].coupled())
+        a_ = absorptionEmission_->a(i);
+        e_ = absorptionEmission_->e(i);
+        E_ = absorptionEmission_->E();
+    
+        // Construct diffusion
+        const volScalarField gamma
+        (
+            IOobject
+            (
+                "gammaRad",
+                G_.mesh().time().timeName(),
+                G_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            1.0/(3.0*a_ + sigmaEff + a0)
+        );
+
+        // Solve G transport equation
+        G_.primitiveFieldRef()=Gp.ref().primitiveFieldRef();
+
+        solve
+        (
+            fvm::laplacian(gamma, G_)
+            - fvm::Sp(a_, G_)
+            ==
+            - 4.0*(e_*physicoChemical::sigma*pow4(T_) ) - E_
+        );
+
+        volScalarField::Boundary& qrBf = qr_.boundaryFieldRef();
+
+        // Calculate radiative heat flux on boundaries.
+        forAll(mesh_.boundaryMesh(), patchi)
         {
-            qrBf[patchi] =
+            if (!G_.boundaryField()[patchi].coupled())
+            {
+                qrBf[patchi] =
                 -gamma.boundaryField()[patchi]
                 *G_.boundaryField()[patchi].snGrad();
+            }
         }
+    
+        if(i == 0)
+            qsr.ref().primitiveFieldRef() = qr_.primitiveFieldRef();
+        else
+            qsr.ref().primitiveFieldRef() = qsr.ref().primitiveFieldRef() + qr_.primitiveFieldRef();
     }
+    qr_.primitiveFieldRef() = qsr.ref().primitiveFieldRef();
 }
 
 
