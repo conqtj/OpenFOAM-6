@@ -76,7 +76,7 @@ void Foam::radiation::radiationModel::initialise()
 {
     solverFreq_ = max(1, lookupOrDefault<label>("solverFreq", 1));
   
-    nBands_ = lookupOrDefault<label>("nBands", 1);
+    noOfBands_ = lookupOrDefault<label>("noOfBands", 1);
 
     absorptionEmission_.reset
     (
@@ -201,6 +201,8 @@ bool Foam::radiation::radiationModel::read()
 
         solverFreq_ = lookupOrDefault<label>("solverFreq", 1);
         solverFreq_ = max(1, solverFreq_);
+      
+        noOfBands_ = lookupOrDefault<label>("noOfBands", 1);
 
         return true;
     }
