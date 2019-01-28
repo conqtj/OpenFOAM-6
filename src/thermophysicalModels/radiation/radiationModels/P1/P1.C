@@ -233,7 +233,7 @@ void Foam::radiation::P1::calculate()
         )
     );
     
-    for(int i=0; i<nBands; i++)
+    for(int i=0; i<noOfBands; i++)
     {
         a_ = absorptionEmission_->a(i);
         e_ = absorptionEmission_->e(i);
